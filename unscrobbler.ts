@@ -38,7 +38,12 @@ async function main() {
   console.log(`Found ${tracks.length} tracks`);
 
   if (args["type"] === "double") {
-    doubleScrobbles(lastfm, tracks, args["username"]);
+    doubleScrobbles(
+      lastfm,
+      tracks,
+      args["username"],
+      Number.parseInt(args["threshold"])
+    );
   } else if (args["type"] === "tags") {
     taggedTracks(lastfm, tracks, args["username"]);
   }
@@ -47,7 +52,7 @@ async function main() {
 async function fetchTracks(
   lastfm: LastfmClient,
   username: string,
-  pagination: { from: number; to: number },
+  pagination: { from: number; to: number }
 ): Promise<Array<TrackPointer>> {
   const tracks = new Array<TrackPointer>();
   for (let page = pagination.from; page <= pagination.to; page++) {
@@ -62,8 +67,9 @@ function doubleScrobbles(
   lastfm: LastfmClient,
   tracks: TrackPointer[],
   username: string,
+  threshold = 240
 ) {
-  const doubles = findDoubleScrobbles(tracks);
+  const doubles = findDoubleScrobbles(tracks, threshold);
   console.log(mod.red(`Found ${doubles.length} double scrobbles`));
   for (const d of doubles) {
     console.log(
@@ -74,7 +80,7 @@ function doubleScrobbles(
       `Time difference: ${
         Math.abs(d[0].track.date.getTime() - d[1].track.date.getTime()) / 1000
       } seconds.`,
-      lastfm.getLibraryPageLink(username, d[0].page),
+      lastfm.getLibraryPageLink(username, d[0].page)
     );
   }
 }
@@ -82,11 +88,11 @@ function doubleScrobbles(
 async function taggedTracks(
   lastfm: LastfmClient,
   tracks: TrackPointer[],
-  username: string,
+  username: string
 ) {
   const remasteredTaggedTracks = findRemastered(tracks);
   console.log(
-    mod.red(`Found ${remasteredTaggedTracks.length} remastered tagged tracks`),
+    mod.red(`Found ${remasteredTaggedTracks.length} remastered tagged tracks`)
   );
   for (const t of remasteredTaggedTracks) {
     console.log(
@@ -94,7 +100,7 @@ async function taggedTracks(
       mod.yellow(`Page ${t.page}`),
       t.track.name,
       t.track.artist,
-      lastfm.getLibraryPageLink(username, t.page),
+      lastfm.getLibraryPageLink(username, t.page)
     );
   }
 }
