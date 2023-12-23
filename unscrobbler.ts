@@ -1,9 +1,9 @@
 import { parseArgs } from "https://deno.land/std@0.208.0/cli/parse_args.ts";
 import * as mod from "https://deno.land/std@0.208.0/fmt/colors.ts";
 
+import { findRemastered } from "./src/detag.ts";
 import { findDoubleScrobbles } from "./src/duplichecker.ts";
 import { LastfmClient, TrackPointer } from "./src/lastfm.ts";
-import { findRemastered } from "./src/detag.ts";
 
 // Main
 async function main() {
@@ -47,7 +47,7 @@ async function main() {
 async function fetchTracks(
   lastfm: LastfmClient,
   username: string,
-  pagination: { from: number; to: number }
+  pagination: { from: number; to: number },
 ): Promise<Array<TrackPointer>> {
   const tracks = new Array<TrackPointer>();
   for (let page = pagination.from; page <= pagination.to; page++) {
@@ -61,7 +61,7 @@ async function fetchTracks(
 function doubleScrobbles(
   lastfm: LastfmClient,
   tracks: TrackPointer[],
-  username: string
+  username: string,
 ) {
   const doubles = findDoubleScrobbles(tracks);
   console.log(mod.red(`Found ${doubles.length} double scrobbles`));
@@ -74,7 +74,7 @@ function doubleScrobbles(
       `Time difference: ${
         Math.abs(d[0].track.date.getTime() - d[1].track.date.getTime()) / 1000
       } seconds.`,
-      lastfm.getLibraryPageLink(username, d[0].page)
+      lastfm.getLibraryPageLink(username, d[0].page),
     );
   }
 }
@@ -82,11 +82,11 @@ function doubleScrobbles(
 async function taggedTracks(
   lastfm: LastfmClient,
   tracks: TrackPointer[],
-  username: string
+  username: string,
 ) {
   const remasteredTaggedTracks = findRemastered(tracks);
   console.log(
-    mod.red(`Found ${remasteredTaggedTracks.length} remastered tagged tracks`)
+    mod.red(`Found ${remasteredTaggedTracks.length} remastered tagged tracks`),
   );
   for (const t of remasteredTaggedTracks) {
     console.log(
@@ -94,7 +94,7 @@ async function taggedTracks(
       mod.yellow(`Page ${t.page}`),
       t.track.name,
       t.track.artist,
-      lastfm.getLibraryPageLink(username, t.page)
+      lastfm.getLibraryPageLink(username, t.page),
     );
   }
 }

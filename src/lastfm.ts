@@ -10,17 +10,22 @@ export class LastfmClient {
     );
     const data = await response.json();
     // deno-lint-ignore no-explicit-any
-    return data.recenttracks.track.map((track: any) => {
-      return {
-        track: {
-          name: track.name,
-          artist: track.artist["#text"],
-          album: track.album["#text"],
-          date: this.timestampToDate(parseInt(track.date.uts)),
-        },
-        page,
-      };
-    });
+    return data.recenttracks.track
+      .map((track: any) => {
+        if (track["@attr"] && track["@attr"].nowplaying) {
+          return null;
+        }
+        return {
+          track: {
+            name: track.name,
+            artist: track.artist["#text"],
+            album: track.album["#text"],
+            date: this.timestampToDate(parseInt(track.date.uts)),
+          },
+          page,
+        };
+      })
+      .filter((trackPointer: TrackPointer | null) => trackPointer !== null);
   }
 
   public getLibraryPageLink(username: string, page: number): string {
